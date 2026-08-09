@@ -80,5 +80,33 @@ client.on('messageCreate', message => {
     message.reply('pong');
   }
 });
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
+
+// أمر لإرسال زر فتح التكت في قناة معينة
+client.on('messageCreate', async message => {
+    if (message.content === '!ticket') {
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('create_ticket')
+                    .setLabel('فتح تكت جديد')
+                    .setStyle(ButtonStyle.Primary)
+            );
+        await message.channel.send({ content: اضغط على الزر أدناه لفتح تكت جديد:, components: [row] });
+    }
+});
+
+// الحدث لما يضغط العضو على زر فتح التكت
+client.on('interactionCreate', async interaction => {
+    if (!interaction.isButton()) return;
+    if (interaction.customId === 'create_ticket') {
+        const guild = interaction.guild;
+        const ticketChannel = await guild.channels.create({
+            name: `ticket-${interaction.user.username}`,
+            type: 0, // قناة كتابية
+        });
+        await interaction.reply({ content: تم إنشاء التكت الخاص بك: ${ticketChannel}, ephemeral: true });
+    }
+});
 
 client.login(process.env.TOKEN);
